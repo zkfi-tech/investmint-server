@@ -3,14 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var schedule = require('node-schedule');
 
 var indexRouter = require('./routes/index');
+var vinterIndexFetchJob = require('./utils/vinter-index');
 
 var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -35,5 +33,9 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// Schedule the task to run every 2 hours
+schedule.scheduleJob('0 */2 * * *', vinterIndexFetchJob);
+vinterIndexFetchJob();
 
 module.exports = app;
