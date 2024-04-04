@@ -9,8 +9,9 @@ const vinterIndexFetchJob = async () => {
     );
 
     const weightObject = response.data.data[0].weights;
+    const nextRebalancingDate = response.data.data[0].next_rebalance_date;
 
-    // Process the data as needed
+    // Processing data as needed by the smart contracts
     const precision = 1000000000000000000; // 18 decimal places (1e18)
 
     const tokens = Object.keys(weightObject);
@@ -20,6 +21,8 @@ const vinterIndexFetchJob = async () => {
 
     debug(`Tokens: ${tokens}`);
     debug(`Weights: ${weights}`);
+
+    // TODO: send the tokens & weights onchain using web3.js
   } catch (error) {
     console.error('Failed to fetch index data:', error);
   }

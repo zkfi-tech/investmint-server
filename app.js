@@ -4,11 +4,17 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var schedule = require('node-schedule');
+const dotenv = require('dotenv').config();
 
+// Routes
 var indexRouter = require('./routes/index');
+
+// Utils
 var vinterIndexFetchJob = require('./utils/vinter-index');
+var connectDB = require('./utils/dbConfig');
 
 var app = express();
+connectDB();
 
 app.use(logger('dev'));
 app.use(express.json());
