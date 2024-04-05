@@ -1,20 +1,20 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const schedule = require('node-schedule');
 
 require('dotenv').config();
 
 // Routes
-var indexRouter = require('./routes/index');
+const indexRouter = require('./routes/index');
 
 // Utils
-var vinterIndexRebalanceDateTracker = require('./utils/vinter-index');
-var { connectDB } = require('./utils/dbConfig');
+const {vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker} = require('./utils/vinter-index');
+const { connectDB } = require('./utils/dbConfig');
 
-var app = express();
-connectDB();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -40,6 +40,11 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-vinterIndexRebalanceDateTracker();
+(async () => {
+  await connectDB();
+  vinterIndexAssetPriceTracker();
+  schedule.scheduleJob('* * * *', vinterIndexAssetPriceTracker); // scheduling job for every hour
+  vinterIndexRebalanceDateTracker(); // self schedules itself
+})();
 
 module.exports = app;

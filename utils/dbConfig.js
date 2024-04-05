@@ -12,7 +12,7 @@ const client = new MongoClient(uri, {
   },
 });
 
-exports.connectDB = async () => {
+async function connectDB() {
   try {
     await client.connect();
 
@@ -26,6 +26,11 @@ exports.connectDB = async () => {
   }
 };
 
-exports.getDB = () => {
+function getDB() {
+  if (!db) {
+    throw new Error('Database connection not established. Call connectDB() first.');
+  }
   return db;
-};
+}
+
+module.exports = {connectDB, getDB};
