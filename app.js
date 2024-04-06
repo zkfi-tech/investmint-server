@@ -11,7 +11,7 @@ require('dotenv').config();
 const indexRouter = require('./routes/index');
 
 // Utils
-const {vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker} = require('./utils/vinter-index');
+const {vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker, vinterIndexRebalancer} = require('./utils/vinter-index');
 const { connectDB } = require('./utils/dbConfig');
 
 const app = express();
@@ -42,9 +42,11 @@ app.use(function (err, req, res, next) {
 
 (async () => {
   await connectDB();
+
   vinterIndexAssetPriceTracker();
   schedule.scheduleJob('* * * *', vinterIndexAssetPriceTracker); // scheduling job for every hour
-  vinterIndexRebalanceDateTracker(); // self schedules itself
+  
+  vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
 })();
 
 module.exports = app;
