@@ -17,10 +17,10 @@ async function connectDB() {
     await client.connect();
 
     // Send a ping to confirm a successful connection
-    await client.db(process.env.INVESTMINT_DB_NAME).command({ ping: 1 });
+    await client.db(process.env.INVESTMINT_DB).command({ ping: 1 });
     debug('You successfully connected to MongoDB!');
 
-    db = await client.db(process.env.INVESTMINT_DB_NAME);
+    db = await client.db(process.env.INVESTMINT_DB);
   } catch (e) {
     debug(e);
   }
@@ -33,4 +33,4 @@ function getDB() {
   return db;
 }
 
-module.exports = {connectDB, getDB};
+module.exports = {connectDB, getDB, client};

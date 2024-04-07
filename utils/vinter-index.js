@@ -303,6 +303,7 @@ async function vinterIndexRebalancer() {
 
 /// Tracks index rebalancing date. 
 /// @dev self schedules itself at T+2 to update the next rebalancing date.
+/// @dev Also schedules `vinterIndexRebalancer()` at T-3, T 
 async function vinterIndexRebalanceDateTracker() {
   try {
     const response = await axios.get(
@@ -343,7 +344,7 @@ async function vinterIndexRebalanceDateTracker() {
         let confirmedRebalanceSchedule = new Date(latestRebalancingDate);
         confirmedRebalanceSchedule.setDate(latestRebalancingDate.getDate() - 3); // T-3
 
-        let executeRebalanceSchedule = new Date(latestRebalancingDate);
+        let executeRebalanceSchedule = new Date(latestRebalancingDate); // T
         
         schedule.scheduleJob(confirmedRebalanceSchedule, vinterIndexRebalancer); // T-3
         schedule.scheduleJob(executeRebalanceSchedule, vinterIndexRebalancer); // T
