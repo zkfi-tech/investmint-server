@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const schedule = require('node-schedule');
+const debug = require('debug')('investmint-offchain-server:app');
 
 require('dotenv').config();
 
@@ -11,7 +12,7 @@ require('dotenv').config();
 const indexRouter = require('./routes/index');
 
 // Utils
-const {vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker, vinterIndexRebalancer} = require('./utils/vinter-index');
+const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker, vinterIndexRebalancer } = require('./utils/vinter-index');
 const { connectDB } = require('./utils/dbConfig');
 
 const app = express();
@@ -43,9 +44,13 @@ app.use(function (err, req, res, next) {
 (async () => {
   await connectDB();
 
-  vinterIndexAssetPriceTracker();
-  schedule.scheduleJob('* * * *', vinterIndexAssetPriceTracker); // scheduling job for every hour
-  
+  vinterIndexAssetPriceTracker(); // run asset price tracker on startup
+  const assetPriceIndexJobReccurRule = new schedule.RecurrenceRule();
+  assetPriceIndexJobReccurRule.minute = 0; // 0th min of every hour
+
+  const assetPriceIndexJob = schedule.scheduleJob(assetPriceIndexJobReccurRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
+  debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
+
   vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
 })();
 

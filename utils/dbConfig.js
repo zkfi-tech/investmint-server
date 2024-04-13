@@ -33,4 +33,8 @@ function getDB() {
   return db;
 }
 
-module.exports = {connectDB, getDB, client};
+async function closeDB() {
+  await client.close();
+}
+
+module.exports = {connectDB, getDB, client, closeDB};
