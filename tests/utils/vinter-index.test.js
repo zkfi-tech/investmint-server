@@ -1,12 +1,10 @@
 const { vinterIndexAssetPriceTracker, vinterIndexRebalanceDateTracker, vinterIndexRebalancer } = require('../../utils/vinter-index');
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const axios = require('axios');
 const { connectDB, getDB, closeDB } = require('../../utils/dbConfig');
 jest.mock('axios');
 
 describe('insert', () => {
   let db;
-  let client;
   let collection;
   // TODO: axios API calls to `multi_assets_daily` API to be mocked when implemented 
   const vinterHourlyAPIResponse = {
@@ -204,7 +202,6 @@ describe('insert', () => {
     // TODO: Add mock network call once VinterIndex Price API is integrated
 
     await vinterIndexRebalancer();
-    console.log(`DB query executed!`);
 
     const updatedIndexInfo = await collection.findOne(filter);
 

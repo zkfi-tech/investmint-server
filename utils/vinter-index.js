@@ -145,7 +145,6 @@ async function vinterIndexAssetPriceTracker() {
 
 async function vinterIndexRebalancer() {
   try {
-    console.log(`Inside vinterIndexRebalancer`);
     /// @dev Working with a sample response since we dont have the API key at the moment
     // TODO: replace with API call
     const vinterHourlyAPIResponse = {
@@ -291,7 +290,6 @@ async function vinterIndexRebalancer() {
       await vinterIndexAssetPriceTracker(); // to update the latest prices of tokens
     }
     await collection.updateOne(filter, updateDoc);
-    console.log(`DB query executed`);
     // TODO: Share rebalancing info with the custodian system
   } catch (e) {
     debug(`Error from Rebalancer: ${e}`);
