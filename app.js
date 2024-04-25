@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const schedule = require('node-schedule');
 const debug = require('debug')('investmint-offchain-server:app');
+const { Web3Eth } = require('web3-eth');
 
 require('dotenv').config();
 
@@ -12,7 +13,8 @@ require('dotenv').config();
 const indexRouter = require('./routes/index');
 
 // Utils
-const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker, vinterIndexRebalancer } = require('./utils/vinter-index');
+const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
+const { getPrecision, updateAUM } = require('./utils/onChainInteractions.js');
 const { connectDB } = require('./utils/dbConfig');
 
 const app = express();
@@ -43,15 +45,20 @@ app.use(function (err, req, res, next) {
 
 (async () => {
   await connectDB();
+  
+    vinterIndexAssetPriceTracker(); // run asset price tracker on startup
+    const aum = await updateAUM(); // update AUM value on startup
+    debug(`Got back AUM: ${aum}`);
+    
+    const reccuranceJobsRule = new schedule.RecurrenceRule();
+    reccuranceJobsRule.minute = 0; // 0th min of every hour
+  
+    const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
+    const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
+    debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
+    debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
 
-  vinterIndexAssetPriceTracker(); // run asset price tracker on startup
-  const assetPriceIndexJobReccurRule = new schedule.RecurrenceRule();
-  assetPriceIndexJobReccurRule.minute = 0; // 0th min of every hour
-
-  const assetPriceIndexJob = schedule.scheduleJob(assetPriceIndexJobReccurRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
-  debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
-
-  vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
+    vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
 })();
 
 module.exports = app;

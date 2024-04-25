@@ -2,7 +2,6 @@ const axios = require('axios');
 const debug = require('debug')('investmint-offchain-server:vinter-index');
 const { getDB } = require('./dbConfig');
 const schedule = require('node-schedule');
-// const BigNumber = require('bignumber.js');
 
 async function vinterIndexAssetPriceTracker() {
   try {
