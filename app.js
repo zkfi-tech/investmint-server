@@ -9,8 +9,9 @@ const { Web3Eth } = require('web3-eth');
 
 require('dotenv').config();
 
-// Routes
+// Routes import
 const indexRouter = require('./routes/index');
+const vaultRouter = require('./routes/vault');
 
 // Utils
 const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
@@ -25,7 +26,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Routes
 app.use('/', indexRouter);
+app.use('/vault', vaultRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -43,8 +46,10 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+
 (async () => {
-  await connectDB();
+    try{
+    await connectDB();
   
     vinterIndexAssetPriceTracker(); // run asset price tracker on startup
     const aum = await updateAUM(); // update AUM value on startup
@@ -59,6 +64,10 @@ app.use(function (err, req, res, next) {
     debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
 
     vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
+    } catch(e) {
+      console.error(`Error while starting crucial services during server startup: ${e}`);
+    }
 })();
+ 
 
 module.exports = app;
