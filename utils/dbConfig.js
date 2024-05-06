@@ -1,6 +1,12 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 var debug = require('debug')('investmint-offchain-server:dbConfig');
+
 const uri = process.env.MONGO_URI;
+if (!uri) {
+  console.error('MongoDB connection string is undefined.', { uri });
+  process.exit(1);
+}
+
 var db;
 
 // Creating a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,4 +43,4 @@ async function closeDB() {
   await client.close();
 }
 
-module.exports = {connectDB, getDB, client, closeDB};
+module.exports = { connectDB, getDB, client, closeDB };

@@ -3,17 +3,8 @@ const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
 const fs = require('fs');
 const path = require('path');
-const { FireblocksSDK } = require('fireblocks-sdk');
-const { exit } = require('process');
+const { getFireblocksInstance } = require('../utils/omnibusVault.js');
 const { inspect } = require('util');
-
-const apiSecret = fs.readFileSync(path.resolve("/Users/shiven/Downloads/0xshiven_fireblocks_secret.key"), "utf8");
-
-const apiKey = process.env.FIREBLOCKS_API_KEY;
-
-// Choose the right api url for your workspace type 
-const baseUrl = "https://sandbox-api.fireblocks.io";
-const fireblocks = new FireblocksSDK(apiSecret, apiKey, baseUrl);
 
 router.get('/create/:mmAddress', async (req, res) => {
     try {
@@ -22,23 +13,31 @@ router.get('/create/:mmAddress', async (req, res) => {
             throw ("Please provide MM EOA address");
         }
         const db = getDB();
+        const fireblocks = getFireblocksInstance();
         const mmFilter = { marketMaker: MMAddress };
         const mmExistingVault = await db.collection('vaults').findOne(mmFilter);
         if (mmExistingVault) {
             throw (`Vault for market maker already exists with id: ${mmExistingVault.vaultId}`);
         }
 
-        // Create vault account
-        const vaultCreation = await fireblocks.createVaultAccount(`INM_${MMAddress}`);
+        // Create intermediate vault account
+        const vaultAccountId = `IMVault_${MMAddress}`;
+        const customerRefIdForAMLProvider = `MM_${MMAddress}`; // For eg: AML provider like zkFi will access this market makers details using this id.
+        const vaultCreation = await fireblocks.createVaultAccount(
+            vaultAccountId,
+            false,
+            customerRefIdForAMLProvider,
+            false
+        );
         console.log(inspect(vaultCreation, false, null, true));
-        const newVaultID = vaultCreation.id;
+        const mmNewVaultID = vaultCreation.id;
 
         // Get assets this vault has to support based on the assets supported by the index
         const filter = { "symbol": process.env.VINTER_INDEX_SYMBOL };
         const vinterIndex = await db.collection("cryptoIndexes").findOne(filter);
         const vinterIndexAssets = vinterIndex.currentAssets;
         const totalAssets = vinterIndexAssets.length;
-        let vaultAssetsOnFireblocks = new Array(totalAssets);
+        let mmVaultAssetWalletsOnFireblocks = new Array(totalAssets);
 
         console.log(`Assets to include in vault: ${vinterIndexAssets}`);
 
@@ -50,24 +49,26 @@ router.get('/create/:mmAddress', async (req, res) => {
             else
                 assetIdFireblocks = assetName + "_TEST";
 
-            // create asset wallets for this asset `assetIdFireblocks`
-            let vaultAsset = await fireblocks.createVaultAsset(newVaultID, assetIdFireblocks);
+            // create asset wallets for this asset `assetIdFireblocks` under the market makers intermediate vault 
+            let description = `Asset wallet for ${assetIdFireblocks} asset owned by market maker ${MMAddress}`;
+            // let mmVaultAsset = await fireblocks.generateNewAddress(mmNewVaultID, assetIdFireblocks, description, customerRefIdForAMLProvider);
+            let mmVaultAsset = await fireblocks.createVaultAsset(mmNewVaultID, assetIdFireblocks);
 
             let assetFireblocksObj = {
                 asset: assetName,
                 assetIdOnFireblocks: assetIdFireblocks,
                 assetIdOnVinter: vinterIndexAssets[a],
-                vaultAssetDepositAddress: vaultAsset.address
+                vaultAssetDepositAddress: mmVaultAsset.address
             }
 
-            vaultAssetsOnFireblocks[a] = (assetFireblocksObj);
+            mmVaultAssetWalletsOnFireblocks[a] = (assetFireblocksObj);
         }
 
         // TODO: Index vaultID with MM address in DB
         const vaultObj = {
             marketMaker: MMAddress,
-            vaultId: newVaultID,
-            vaultAssetsOnFireblocks
+            vaultId: mmNewVaultID,
+            vaultAssets: mmVaultAssetWalletsOnFireblocks
         };
 
         await db.collection('vaults').insertOne(vaultObj);

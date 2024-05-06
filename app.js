@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const schedule = require('node-schedule');
 const debug = require('debug')('investmint-offchain-server:app');
-const { Web3Eth } = require('web3-eth');
 
 require('dotenv').config();
 
@@ -17,6 +16,7 @@ const vaultRouter = require('./routes/vault');
 const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
 const { getPrecision, updateAUM } = require('./utils/onChainInteractions.js');
 const { connectDB } = require('./utils/dbConfig');
+const { createInvestMintOmnibusVault } = require('./utils/omnibusVault.js');
 
 const app = express();
 
@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', indexRouter);
-app.use('/vault', vaultRouter);
+app.use('/intermediateVault', vaultRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -48,26 +48,30 @@ app.use(function (err, req, res, next) {
 
 
 (async () => {
-    try{
+  try {
     await connectDB();
-  
+    createInvestMintOmnibusVault();
+
     vinterIndexAssetPriceTracker(); // run asset price tracker on startup
+
     const aum = await updateAUM(); // update AUM value on startup
     debug(`Got back AUM: ${aum}`);
-    
+
     const reccuranceJobsRule = new schedule.RecurrenceRule();
     reccuranceJobsRule.minute = 0; // 0th min of every hour
-  
+
     const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
     const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
     debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
     debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
 
     vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
-    } catch(e) {
-      console.error(`Error while starting crucial services during server startup: ${e}`);
-    }
+
+
+  } catch (e) {
+    console.error(`Error while starting crucial services during server startup: ${e}`);
+  }
 })();
- 
+
 
 module.exports = app;
