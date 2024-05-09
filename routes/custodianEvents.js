@@ -20,7 +20,7 @@ router.post("/", async (req, res) => {
     if (isVerified) {
         if (message.operation == "TRANSFER") {
             /// @dev Maintaining temporary record of each deposit by a MM, till they deposit all index assets. Once all index assets deposited, DFT minting permission will be given to MM onchain and this temp. deposit record will be restored.
-            // We are not relying on asset wallet bal. from the custodian system as sweeping process might not happen immediately, allowing for frontrunning attack vector, even after the MM mints the DFTs.
+            // We are not relying on asset wallet bal. from the custodian system as sweeping process might not happen immediately due to gas fee to be paid while sweeping. This delay in restoring wallet bal can allow for frontrunning attack vector, even after the MM mints the DFTs. Therefore, to avoid this, we record and restore wallet bal. explicitely.
             const db = getDB();
             const collection = await db.collection('vaults');
             const vaultAssetQuery = {
@@ -59,6 +59,7 @@ router.post("/", async (req, res) => {
                 //TODO: initiate sweeping process
             }
         }
+        debug(`Custodian webhook call received for operation: ${message.operation}`);
     }
     res.send("ok");
 });

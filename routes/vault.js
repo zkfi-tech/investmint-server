@@ -80,24 +80,5 @@ router.get('/create/:mmAddress', async (req, res) => {
     }
 });
 
-router.get('/updateAssetBal/:assetId/:depositAddr', async (req, res) => {
-
-    const db = getDB();
-    const collection = db.collection('vaults');
-    const vaultAssetQuery = {
-        $and: [
-            { "vaultAssets.vaultAssetDepositAddress": req.params.depositAddr },
-            { "vaultAssets.assetIdOnFireblocks": req.params.assetId }
-        ]
-    };
-
-    const vaultAssetUpdateBal = {
-        $inc: { "vaultAssets.$.balance": 10 }
-    };
-
-    // update vault
-    const balUpdateResult = await collection.updateOne(vaultAssetQuery, vaultAssetUpdateBal);
-    console.log(`Balance updated for asset: ${JSON.stringify(balUpdateResult)}`);
-})
 
 module.exports = router;

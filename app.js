@@ -17,7 +17,7 @@ const fireblocksWebhookRouter = require('./routes/custodianEvents');
 const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
 const { getPrecision, updateAUM, confirmDepositOnChain } = require('./utils/onChainInteractions.js');
 const { connectDB } = require('./utils/dbConfig');
-const { createInvestMintOmnibusVault } = require('./utils/omnibusVault.js');
+const { createInvestMintOmnibusVault, sweepToInvestMintTreasury } = require('./utils/omnibusVault.js');
 
 const app = express();
 
@@ -52,28 +52,32 @@ app.use(function (err, req, res, next) {
 (async () => {
   try {
     await connectDB();
-    
-    createInvestMintOmnibusVault();
-    
-      vinterIndexAssetPriceTracker(); // run asset price tracker on startup
-      
-      const aum = await updateAUM(); // update AUM value on startup
-      debug(`Got back AUM: ${aum}`);
-      
-      const reccuranceJobsRule = new schedule.RecurrenceRule();
-      reccuranceJobsRule.minute = 0; // 0th min of every hour
-    
-      const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
-      const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
-      debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
-      debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
+    await createInvestMintOmnibusVault();
+    vinterIndexAssetPriceTracker(); // run asset price tracker on startup
+    const aum = await updateAUM(); // update AUM value on startup
+    debug(`Got back AUM: ${aum}`);
 
-      vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
+    vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
 
+    // Scheduling Price Tracker & updateAUM
+    const reccuranceJobsRule = new schedule.RecurrenceRule();
+    reccuranceJobsRule.minute = 0; // 0th min of every hour
+    const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
+    const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
+    debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
+    debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
+
+    // scheduling sweep to treasury
+    const sweepingJobRule = new schedule.RecurrenceRule();
+    // scheduling at 0th hour of every day in IST timezone
+    sweepingJobRule.hour = 0;
+    sweepingJobRule.minute = 0;
+    sweepingJobRule.tx = 'Asia/Kolkata';
+    const sweepingJob = schedule.scheduleJob(sweepingJobRule, sweepToInvestMintTreasury);
+    debug(`Sweep to treasury scheduled for: ${sweepingJob.nextInvocation()}`);
   } catch (e) {
     console.error(`Error while starting crucial services during server startup: ${e}`);
   }
 })();
-
 
 module.exports = app;
