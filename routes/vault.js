@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
-const fs = require('fs');
-const path = require('path');
 const { getFireblocksInstance } = require('../utils/omnibusVault.js');
 const { inspect } = require('util');
 
@@ -25,7 +23,7 @@ router.get('/create/:mmAddress', async (req, res) => {
         const customerRefIdForAMLProvider = `MM_${MMAddress}`; // For eg: AML provider like zkFi will access this market makers details using this id.
         const vaultCreation = await fireblocks.createVaultAccount(
             vaultAccountId,
-            false,
+            true, // hiddenOnUI: true for all intermediate vault accounts
             customerRefIdForAMLProvider,
             false
         );
@@ -45,7 +43,7 @@ router.get('/create/:mmAddress', async (req, res) => {
             let assetNamePortions = vinterIndexAssets[a].split('-');
             let assetName = assetNamePortions[0].toUpperCase();
             if (assetNamePortions[0] == "eth")
-                assetIdFireblocks = assetName + "_TEST5"; // eg: ETH_TEST5
+                assetIdFireblocks = "BASECHAIN_" + assetName + "_TEST5"; // eg: BASECHAIN_ETH_TEST5
             else
                 assetIdFireblocks = assetName + "_TEST";
 
@@ -56,9 +54,11 @@ router.get('/create/:mmAddress', async (req, res) => {
 
             let assetFireblocksObj = {
                 asset: assetName,
+                vaultAssetDepositAddress: mmVaultAsset.address,
+                vaultAssetTag: mmVaultAsset.tag,
                 assetIdOnFireblocks: assetIdFireblocks,
                 assetIdOnVinter: vinterIndexAssets[a],
-                vaultAssetDepositAddress: mmVaultAsset.address
+                balance: 0
             }
 
             mmVaultAssetWalletsOnFireblocks[a] = (assetFireblocksObj);
@@ -79,5 +79,25 @@ router.get('/create/:mmAddress', async (req, res) => {
         res.status(400).send(`Failed to create vault: ${e}`);
     }
 });
+
+router.get('/updateAssetBal/:assetId/:depositAddr', async (req, res) => {
+
+    const db = getDB();
+    const collection = db.collection('vaults');
+    const vaultAssetQuery = {
+        $and: [
+            { "vaultAssets.vaultAssetDepositAddress": req.params.depositAddr },
+            { "vaultAssets.assetIdOnFireblocks": req.params.assetId }
+        ]
+    };
+
+    const vaultAssetUpdateBal = {
+        $inc: { "vaultAssets.$.balance": 10 }
+    };
+
+    // update vault
+    const balUpdateResult = await collection.updateOne(vaultAssetQuery, vaultAssetUpdateBal);
+    console.log(`Balance updated for asset: ${JSON.stringify(balUpdateResult)}`);
+})
 
 module.exports = router;

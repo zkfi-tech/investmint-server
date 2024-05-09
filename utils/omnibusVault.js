@@ -19,14 +19,13 @@ function createFireblocksInstance() {
 }
 
 async function createInvestMintOmnibusVault() {
-    if(!fireblocks)
+    if (!fireblocks)
         fireblocks = createFireblocksInstance();
-    
+
     const vaultAccountId = `INVESTMINT_OMNIBUS_VAULT`;
-    
+
     // Create omnibus vault account
     investMintOmnibusVault = await fireblocks.createVaultAccount(vaultAccountId);
-    console.log(inspect(investMintOmnibusVault, false, null, true));
     return investMintOmnibusVault.id;
 }
 

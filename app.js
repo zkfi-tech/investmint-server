@@ -9,12 +9,13 @@ const debug = require('debug')('investmint-offchain-server:app');
 require('dotenv').config();
 
 // Routes import
-const indexRouter = require('./routes/index');
+const cryptoIndexRouter = require('./routes/cryptoIndex');
 const vaultRouter = require('./routes/vault');
+const fireblocksWebhookRouter = require('./routes/custodianEvents');
 
 // Utils
 const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
-const { getPrecision, updateAUM } = require('./utils/onChainInteractions.js');
+const { getPrecision, updateAUM, confirmDepositOnChain } = require('./utils/onChainInteractions.js');
 const { connectDB } = require('./utils/dbConfig');
 const { createInvestMintOmnibusVault } = require('./utils/omnibusVault.js');
 
@@ -27,8 +28,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
-app.use('/', indexRouter);
+app.use('/', cryptoIndexRouter);
 app.use('/intermediateVault', vaultRouter);
+app.use('/fireblocksWebhook', fireblocksWebhookRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -43,30 +45,30 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send('error');
 });
 
 
 (async () => {
   try {
     await connectDB();
+    
     createInvestMintOmnibusVault();
+    
+      vinterIndexAssetPriceTracker(); // run asset price tracker on startup
+      
+      const aum = await updateAUM(); // update AUM value on startup
+      debug(`Got back AUM: ${aum}`);
+      
+      const reccuranceJobsRule = new schedule.RecurrenceRule();
+      reccuranceJobsRule.minute = 0; // 0th min of every hour
+    
+      const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
+      const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
+      debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
+      debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
 
-    vinterIndexAssetPriceTracker(); // run asset price tracker on startup
-
-    const aum = await updateAUM(); // update AUM value on startup
-    debug(`Got back AUM: ${aum}`);
-
-    const reccuranceJobsRule = new schedule.RecurrenceRule();
-    reccuranceJobsRule.minute = 0; // 0th min of every hour
-
-    const assetPriceIndexJob = schedule.scheduleJob(reccuranceJobsRule, vinterIndexAssetPriceTracker); // scheduling asset price job for each hour
-    const aumUpdateOnChainJob = schedule.scheduleJob(reccuranceJobsRule, updateAUM);
-    debug(`Asset Price Index Job next run: ${assetPriceIndexJob.nextInvocation()}`);
-    debug(`AUM Onchain update Job next run: ${aumUpdateOnChainJob.nextInvocation()}`);
-
-    vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
-
+      vinterIndexRebalanceDateTracker(); // schedules `vinter-index::vinterIndexRebalancer()` and `vinterIndex::vinterIndexRebalanceDateTracker()`
 
   } catch (e) {
     console.error(`Error while starting crucial services during server startup: ${e}`);
