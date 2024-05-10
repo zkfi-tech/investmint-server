@@ -18,6 +18,7 @@ const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = requir
 const { getPrecision, updateAUM, confirmDepositOnChain } = require('./utils/onChainInteractions.js');
 const { connectDB } = require('./utils/dbConfig');
 const { createInvestMintOmnibusVault, sweepToInvestMintTreasury } = require('./utils/omnibusVault.js');
+const { createWithdrawVault, ensureEnoughWithdrawFundsAvailable } = require('./utils/withdrawalVault.js');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use(function (err, req, res, next) {
   try {
     await connectDB();
     await createInvestMintOmnibusVault();
+    await createWithdrawVault();
     vinterIndexAssetPriceTracker(); // run asset price tracker on startup
     const aum = await updateAUM(); // update AUM value on startup
     debug(`Got back AUM: ${aum}`);
@@ -75,8 +77,17 @@ app.use(function (err, req, res, next) {
     sweepingJobRule.tx = 'Asia/Kolkata';
     const sweepingJob = schedule.scheduleJob(sweepingJobRule, sweepToInvestMintTreasury);
     debug(`Sweep to treasury scheduled for: ${sweepingJob.nextInvocation()}`);
+
+    // scheduling withdrawal vault balance maintainer
+    const withdrawalVaultBalMaintainerJobRule = new schedule.RecurrenceRule();
+    // scheduling at 0th hour of every day in IST timezone
+    withdrawalVaultBalMaintainerJobRule.hour = 1;
+    withdrawalVaultBalMaintainerJobRule.minute = 0;
+    withdrawalVaultBalMaintainerJobRule.tx = 'Asia/Kolkata';
+    const withdrawalVaultBalMaintainerJob = schedule.scheduleJob(withdrawalVaultBalMaintainerJobRule, ensureEnoughWithdrawFundsAvailable);
+    debug(`Withdrawal Vault scheduled for: ${withdrawalVaultBalMaintainerJob.nextInvocation()}`);
   } catch (e) {
-    console.error(`Error while starting crucial services during server startup: ${e}`);
+    console.error(`Error while starting crucial services during server startup: ${e.message}`);
   }
 })();
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
-const BigNumber = require('bignumber.js')
+const BigNumber = require('bignumber.js');
 const { vinterIndexAssetPriceTracker } = require('../utils/vinter-index.js');
 
 /* GET users listing. */
@@ -28,10 +28,10 @@ router.get('/getAssetCompositionAndWeights', async (req, res) => {
   const currentPrices = indexInfo.currentPrices;
   const numberOfAssets = currentAssets.length;
 
-  var assetToBeDepositedBasedOnWeights = new Array(currentAssets.length);
+  var assetToBeDepositedBasedOnWeights = new Array(numberOfAssets);
   for (let a = 0; a < numberOfAssets; a++) {
     let assetWt = new BigNumber(currentWeights[a].toString());
-    let assetBasedSplitOfInvestment = assetWt.multipliedBy(investmentAmount);
+    let assetBasedSplitOfInvestment = assetWt.multipliedBy(investmentAmount); // wt per DFT * USD to invest
     let assetCurrentPrice = new BigNumber(currentPrices[a].toString());
 
     let assetQuantityToDeposit = assetBasedSplitOfInvestment.dividedBy(assetCurrentPrice);

@@ -1,8 +1,6 @@
 const { FireblocksSDK } = require('fireblocks-sdk');
-const { getDB } = require('./dbConfig.js');
 const fs = require('fs');
 const path = require('path');
-const { inspect } = require('util');
 const debug = require('debug')('investmint-offchain-server:omnibusVault');
 
 // States
@@ -30,11 +28,13 @@ async function createInvestMintOmnibusVault() {
 }
 
 function getFireblocksInstance() {
+    if (!fireblocks)
+        fireblocks = createFireblocksInstance();
     return fireblocks;
 }
 
 function getInvestMintVaultId() {
-    return investMintOmnibusVault.id;
+    return treasuryVaultId;
 }
 
 async function sweepToInvestMintTreasury() {

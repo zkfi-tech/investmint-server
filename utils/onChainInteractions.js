@@ -1,6 +1,7 @@
 const { Web3 } = require('web3');
 const NavTrackerABI = require('../abi/NavTracker.json');
 const IssuanceABI = require('../abi/Issuance.json');
+const InvestMintDFTABI = require('../abi/InvestMintDFT.json');
 const debug = require('debug')('investmint-offchain-server:contractInteractions');
 
 // Account
@@ -14,6 +15,10 @@ const navTrackerContract = new web3.eth.Contract(
 
 const issuanceContract = new web3.eth.Contract(
     IssuanceABI, process.env.ISSUANCE_CONTRACT_ADDRESS
+)
+
+const dftContract = new web3.eth.Contract(
+    InvestMintDFTABI, process.env.DFT_CONTRACT_ADDRESS
 )
 
 async function updateAUM() {
@@ -32,6 +37,11 @@ async function updateAUM() {
 async function getPrecision() {
     const precision = await navTrackerContract.methods.getPrecision().call();
     return precision;
+}
+
+async function getTotalDFTSupply() {
+    const dftSupply = await dftContract.methods.totalSupply().call();
+    return dftSupply;
 }
 
 async function confirmDepositOnChain(marketMaker) {
@@ -66,4 +76,4 @@ async function pollEvents() {
     debug(pastDepositVerifierEvents);
 }
 
-module.exports = { getPrecision, updateAUM, confirmDepositOnChain };
+module.exports = { getPrecision, updateAUM, confirmDepositOnChain, getTotalDFTSupply };
