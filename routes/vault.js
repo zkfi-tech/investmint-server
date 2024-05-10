@@ -4,9 +4,22 @@ const { getDB } = require('../utils/dbConfig.js');
 const { getFireblocksInstance } = require('../utils/omnibusVault.js');
 const { inspect } = require('util');
 
-router.get('/create/:mmAddress', async (req, res) => {
+router.post('/create/:mmAddress', async (req, res) => {
     try {
         const MMAddress = req.params.mmAddress;
+        const withdrawalAddressesForAssets = req.body.withdrawalAddressesForAssets; // Array of JSON obj
+        /** 
+         * [
+         *  { asset: 'ada-usd-p-h',
+         *    withdrawalAddress: "83840380340238" },
+         *  { asset: btc-usd-p-h,
+         *      withdrawalAddress: "34083058034322" },
+         *  .
+         *  .
+         * ]
+         * 
+        */
+
         if (!MMAddress) {
             throw ("Please provide MM EOA address");
         }
@@ -40,6 +53,13 @@ router.get('/create/:mmAddress', async (req, res) => {
         console.log(`Assets to include in vault: ${vinterIndexAssets}`);
 
         for (let a = 0; a < totalAssets; a++) {
+            // getting the withdraw addr of this asset from req.body (withdrawalAddressesForAssets)
+            let assetObjWithWithdrawDetails = withdrawalAddressesForAssets.find(assetObjWithWithdrawDetails => 
+                assetObjWithWithdrawDetails.asset === vinterIndexAssets[a]
+            );
+            let assetWithdrawAddress = assetObjWithWithdrawDetails.withdrawalAddress;
+
+            // preparing Fireblock ID of this asset
             let assetNamePortions = vinterIndexAssets[a].split('-');
             let assetName = assetNamePortions[0].toUpperCase();
             if (assetNamePortions[0] == "eth")
@@ -52,16 +72,17 @@ router.get('/create/:mmAddress', async (req, res) => {
             // let mmVaultAsset = await fireblocks.generateNewAddress(mmNewVaultID, assetIdFireblocks, description, customerRefIdForAMLProvider);
             let mmVaultAsset = await fireblocks.createVaultAsset(mmNewVaultID, assetIdFireblocks);
 
-            let assetFireblocksObj = {
+            let assetObj = {
                 asset: assetName,
                 vaultAssetDepositAddress: mmVaultAsset.address,
+                withdrawalAddress: assetWithdrawAddress,
                 vaultAssetTag: mmVaultAsset.tag,
                 assetIdOnFireblocks: assetIdFireblocks,
                 assetIdOnVinter: vinterIndexAssets[a],
                 balance: 0
             }
 
-            mmVaultAssetWalletsOnFireblocks[a] = (assetFireblocksObj);
+            mmVaultAssetWalletsOnFireblocks[a] = assetObj;
         }
 
         // TODO: Index vaultID with MM address in DB
