@@ -2,12 +2,39 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
 const { getFireblocksInstance } = require('../utils/omnibusVault.js');
+const { getVault } = require('../utils/custodian.js');
 const { inspect } = require('util');
+const debug = require('debug')('investmint-offchain-server:vault');
+
+router.get('/isVaultCreated/:mmAddress', async (req, res) => {
+    const vault = await getVault();
+    if (vault != null) {
+        res.status(200).send(true);
+    } else {
+        res.status(200).send(false);
+    }
+});
+
+router.get('/getVault/:mmAddress', async (req, res) => {
+    try {
+        const mmAddress = req.params.mmAddress;
+        const vault = await getVault(mmAddress);
+
+        if (vault != null) {
+            res.status(200).json(vault);
+        } else {
+            res.status(400).send('Vault not found for this market maker');
+        }
+    } catch (e) {
+        res.status(400).send(`Failed to get vault: ${e}`);
+    }
+});
 
 router.post('/create/:mmAddress', async (req, res) => {
     try {
         const MMAddress = req.params.mmAddress;
         const withdrawalAddressesForAssets = req.body.withdrawalAddressesForAssets; // Array of JSON obj
+
         /** 
          * [
          *  { asset: 'ada-usd-p-h',
@@ -19,6 +46,7 @@ router.post('/create/:mmAddress', async (req, res) => {
          * ]
          * 
         */
+
 
         if (!MMAddress) {
             throw ("Please provide MM EOA address");
@@ -54,7 +82,7 @@ router.post('/create/:mmAddress', async (req, res) => {
 
         for (let a = 0; a < totalAssets; a++) {
             // getting the withdraw addr of this asset from req.body (withdrawalAddressesForAssets)
-            let assetObjWithWithdrawDetails = withdrawalAddressesForAssets.find(assetObjWithWithdrawDetails => 
+            let assetObjWithWithdrawDetails = withdrawalAddressesForAssets.find(assetObjWithWithdrawDetails =>
                 assetObjWithWithdrawDetails.asset === vinterIndexAssets[a]
             );
             let assetWithdrawAddress = assetObjWithWithdrawDetails.withdrawalAddress;
