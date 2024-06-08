@@ -1,0 +1,48 @@
+{
+    "type": "TRANSACTION_STATUS_UPDATED",
+    "timestamp": 1714999730662,
+    "data": {
+        "id": "e221fa8e-03b0-4d01-ba3a-861e37c8020d",
+        "createdAt": 1714999719832,
+        "lastUpdated": 1714999720032,
+        "assetId": "BTC_TEST",
+        "source": {
+            "id": "",
+            "type": "UNKNOWN",
+            "name": "External",
+            "subType": ""
+        },
+        "destination": {
+            "id": "30",
+            "type": "VAULT_ACCOUNT",
+            "name": "IMVault_0x734A75B8e9D002A27109247800F7afA4BeEC532",
+            "subType": ""
+        },
+        "amount": 0.0009,
+        "networkFee": 0.00003150000609,
+        "netAmount": 0.0009,
+        "sourceAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "destinationAddress": "tb1qz59dapw3taqn738grrv9r73f8pmexhzww3dsh9",
+        "status": "COMPLETED",
+        "txHash": "0x1c4a1b5e636c0ff37575244c68b82e9a816c42996eb01576225822ce6ee948da",
+        "subStatus": "CONFIRMED",
+        "feeCurrency": "BTC_TEST",
+        "operation": "TRANSFER",
+        "numOfConfirmations": 1,
+        "amountInfo": {
+            "amount": "0.0009",
+            "requestedAmount": "0.0009",
+            "netAmount": "0.0009",
+            "amountUSD": null
+        },
+        "feeInfo": {
+            "networkFee": "0.00003150000609",
+            "gasPrice": "1.50000029"
+        },
+        "blockInfo": {
+            "blockHeight": "9615711",
+            "blockHash": "0x46f212406a5c2f8eb38c8d144c78084fe48416b27e48f9c466283641683d9d7d"
+        },
+        "assetType": "BASE_ASSET"
+    }
+}

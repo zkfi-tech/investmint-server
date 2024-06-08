@@ -1,0 +1,109 @@
+[
+    {
+        "Ticker": "BTC",
+        "id": "BTC_TEST",
+        "name": "Bitcoin Test",
+        "type": "BASE_ASSET",
+        "contractAddress": "   ",
+        "nativeAsset": "BTC_TEST",
+        "decimals": 8
+    },
+    {
+        "Ticker": "ETH",
+        "id": "ETH_TEST5",
+        "name": "Ethereum Test (Sepolia)",
+        "type": "BASE_ASSET",
+        "nativeAsset": "ETH_TEST5",
+        "decimals": 18
+    },
+    {
+        "Ticker": "BNB",
+        "id": "BNB_TEST",
+        "name": "Binance Coin Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "BNB_TEST",
+        "decimals": 18
+    },
+    {
+        "Ticker": "SOL",
+        "id": "SOL_TEST",
+        "name": "Solana Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "SOL_TEST",
+        "decimals": 9
+    },
+    {
+        "Ticker": "XRP",
+        "id": "XRP_TEST",
+        "name": "XRP Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "XRP_TEST",
+        "decimals": 6
+    },
+    {
+        "Ticker": "DOGE",
+        "id": "DOGE",
+        "name": "Doge Coin",
+        "type": "BASE_ASSET",
+        "nativeAsset": "DOGE",
+        "decimals": 8
+    },
+    {
+        "Ticker": "ADA",
+        "id": "ADA_TEST",
+        "name": "ADA Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "ADA_TEST",
+        "decimals": 6
+    },
+    {
+        "Ticker": "SHIB",
+        "id": "SHIB",
+        "name": "SHIBA INU",
+        "type": "ERC20",
+        "contractAddress": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "nativeAsset": "ETH",
+        "decimals": 18
+    },
+    {
+        "Ticker": "AVAX",
+        "id": "AVAXTEST",
+        "name": "Avalanche Fuji",
+        "type": "BASE_ASSET",
+        "nativeAsset": "AVAXTEST",
+        "decimals": 18
+    },
+    {
+        "Ticker": "TRX",
+        "id": "TRX_TEST",
+        "name": "Tron Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "TRX_TEST",
+        "decimals": 6
+    },
+    {
+        "Ticker": "DOT",
+        "id": "DOT",
+        "name": "Polkadot",
+        "type": "BASE_ASSET",
+        "nativeAsset": "DOT",
+        "decimals": 10
+    },
+    {
+        "Ticker": "BCH",
+        "id": "BCH_TEST",
+        "name": "Bitcoin Cash Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "BCH_TEST",
+        "decimals": 8
+    },
+    {
+        "Ticker": "LINK",
+        "id": "LINK",
+        "name": "Chainlink",
+        "type": "ERC20",
+        "contractAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "nativeAsset": "ETH",
+        "decimals": 18
+    }
+]

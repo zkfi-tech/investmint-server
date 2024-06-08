@@ -3,6 +3,7 @@ const NavTrackerABI = require('../abi/NavTracker.json');
 const IssuanceABI = require('../abi/Issuance.json');
 const InvestMintDFTABI = require('../abi/InvestMintDFT.json');
 const debug = require('debug')('investmint-offchain-server:contractInteractions');
+const { inspect } = require('util');
 
 // Account
 const web3 = new Web3(process.env.ANVIL_RPC_URL);
@@ -45,27 +46,19 @@ async function getTotalDFTSupply() {
 }
 
 async function confirmDepositOnChain(marketMaker) {
-    /**
-    const depositEventSub = await issuanceContract.events.DepositVerifiedFor({
-        fromBlock: 'latest'
-    });
-    depositEventSub.on("connected", (connected) => debug(`Connected event: ${connected}`));
+    try {
+        const tx = {
+            from: anvilWallet[0].address,
+            to: process.env.ISSUANCE_CONTRACT_ADDRESS,
+            value: '0'
+        };
 
-    depositEventSub.on('data', (event) => {
-        debug(`Received event: ${event}`);
-    });
-    */
-
-    const tx = {
-        from: anvilWallet[0].address,
-        to: process.env.ISSUANCE_CONTRACT_ADDRESS
+        const confirmDepositTxnReciept = await issuanceContract.methods.confirmDeposit(marketMaker).send(tx);
+        return confirmDepositTxnReciept;
+    } catch (error) {
+        console.error('Error confirming deposit on chain:', error);
+        throw error;
     }
-
-    await issuanceContract.methods.confirmDeposit(marketMaker).send(tx);
-
-    // TODO: Only for testing. Remove later.
-    // using pooling to listen to events as Anvil doesnt offer WSS
-    setTimeout(pollEvents, 5000);
 }
 
 async function pollEvents() {
@@ -75,5 +68,7 @@ async function pollEvents() {
     });
     debug(pastDepositVerifierEvents);
 }
+
+async function confirmWithdrawOnChain() { }
 
 module.exports = { getPrecision, updateAUM, confirmDepositOnChain, getTotalDFTSupply };

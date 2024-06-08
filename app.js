@@ -11,7 +11,7 @@ require('dotenv').config();
 // Routes import
 const cryptoIndexRouter = require('./routes/cryptoIndex');
 const vaultRouter = require('./routes/vault');
-const fireblocksWebhookRouter = require('./routes/custodianEvents');
+const fireblocksWebhookRouter = require('./routes/fireblocksWebhook.js');
 
 // Utils
 const { vinterIndexRebalanceDateTracker, vinterIndexAssetPriceTracker } = require('./utils/vinter-index');
@@ -86,7 +86,8 @@ app.use(function (err, req, res, next) {
     withdrawalVaultBalMaintainerJobRule.tx = 'Asia/Kolkata';
     const withdrawalVaultBalMaintainerJob = schedule.scheduleJob(withdrawalVaultBalMaintainerJobRule, ensureEnoughWithdrawFundsAvailable);
     debug(`Withdrawal Vault scheduled for: ${withdrawalVaultBalMaintainerJob.nextInvocation()}`);
-  } catch (e) {
+  }
+  catch (e) {
     console.error(`Error while starting crucial services during server startup: ${e.message}`);
   }
 })();

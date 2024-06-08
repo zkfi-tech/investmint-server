@@ -10,13 +10,13 @@ describe("Testing routes", () => {
     beforeAll(async () => {
         await connectDB();
         db = getDB();
-    });
+    }, 20000);
 
     afterAll(async () => {
         await closeDB(); // since importing app.js which opens connections to the DB
     })
 
-    test('Root route should sent 200 status code', async () => {
+    test('Root-route-should-sent-200-status-code', async () => {
         const response = await request(app).get("/");
         expect(response.statusCode).toBe(200);
     });

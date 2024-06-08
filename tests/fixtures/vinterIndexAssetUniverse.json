@@ -1,0 +1,48 @@
+[
+    {
+        "ticker": "ADA",
+        "fireblockId": "ADA_TEST",
+        "vinterIndexId": "ada-usd-p-h",
+        "name": "ADA Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "ADA_TEST",
+        "decimals": 6
+    },
+    {
+        "ticker": "BTC",
+        "fireblockId": "BTC_TEST",
+        "vinterIndexId": "btc-usd-p-h",
+        "name": "Bitcoin Test",
+        "type": "BASE_ASSET",
+        "contractAddress": "   ",
+        "nativeAsset": "BTC_TEST",
+        "decimals": 8
+    },
+    {
+        "ticker": "ETH",
+        "fireblockId": "BASECHAIN_ETH_TEST5",
+        "vinterIndexId": "eth-usd-p-h",
+        "name": "Ethereum Test (Base)",
+        "type": "BASE_ASSET",
+        "nativeAsset": "ETH_TEST5",
+        "decimals": 18
+    },
+    {
+        "ticker": "BNB",
+        "fireblockId": "BNB_TEST",
+        "vinterIndexId": "bnb-usd-p-h",
+        "name": "Binance Coin Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "BNB_TEST",
+        "decimals": 18
+    },
+    {
+        "ticker": "XRP",
+        "fireblockId": "XRP_TEST",
+        "vinterIndexId": "xrp-usd-p-h",
+        "name": "XRP Test",
+        "type": "BASE_ASSET",
+        "nativeAsset": "XRP_TEST",
+        "decimals": 6
+    }
+]
