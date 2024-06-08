@@ -1,0 +1,51 @@
+{
+    "marketMaker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "vaultId": "352",
+    "vaultAssets": [
+        {
+            "asset": "ADA",
+            "vaultAssetDepositAddress": "addr_test1qpp06wga7lfzy55sr9w5ymcsjt2wvfd7lfgph4vg6gjt0c4mwyyjdx63nhe6wwkvrfqj0cppr0nsladrlcxjh8m93unq2nyvh6",
+            "withdrawalAddress": "dummy-withdraw-address-1",
+            "vaultAssetTag": "",
+            "assetIdOnFireblocks": "ADA_TEST",
+            "assetIdOnVinter": "ada-usd-p-h",
+            "balance": 0
+        },
+        {
+            "asset": "BNB",
+            "vaultAssetDepositAddress": "0x3CAE2bc199aB2C99e0aA593732e9Af498b170a8d",
+            "withdrawalAddress": "dummy-withdraw-address-2",
+            "vaultAssetTag": "",
+            "assetIdOnFireblocks": "BNB_TEST",
+            "assetIdOnVinter": "bnb-usd-p-h",
+            "balance": 0
+        },
+        {
+            "asset": "BTC",
+            "vaultAssetDepositAddress": "tb1qz59dapw3taqn738grrv9r73f8pmexhzww3dsh9",
+            "withdrawalAddress": "dummy-withdraw-address-3",
+            "vaultAssetTag": "",
+            "assetIdOnFireblocks": "BTC_TEST",
+            "assetIdOnVinter": "btc-usd-p-h",
+            "balance": 0
+        },
+        {
+            "asset": "ETH",
+            "vaultAssetDepositAddress": "0x3CAE2bc199aB2C99e0aA593732e9Af498b170a8d",
+            "withdrawalAddress": "dummy-withdraw-address-4",
+            "vaultAssetTag": "",
+            "assetIdOnFireblocks": "BASECHAIN_ETH_TEST5",
+            "assetIdOnVinter": "eth-usd-p-h",
+            "balance": 0
+        },
+        {
+            "asset": "XRP",
+            "vaultAssetDepositAddress": "rpvGDNgp317AchZZja5ecuESzw54xsGCEw",
+            "withdrawalAddress": "dummy-withdraw-address-5",
+            "vaultAssetTag": "3540450787",
+            "assetIdOnFireblocks": "XRP_TEST",
+            "assetIdOnVinter": "xrp-usd-p-h",
+            "balance": 0
+        }
+    ]
+}

@@ -10,7 +10,7 @@ require('dotenv').config();
 
 // Routes import
 const cryptoIndexRouter = require('./routes/cryptoIndex');
-const vaultRouter = require('./routes/vault');
+const vaultRouter = require('./routes/intermediateVault.js');
 const fireblocksWebhookRouter = require('./routes/fireblocksWebhook.js');
 
 // Utils

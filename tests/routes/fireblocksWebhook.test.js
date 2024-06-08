@@ -1,7 +1,8 @@
 const app = require('../../app.js');
 const request = require('supertest');
-const { connectDB, closeDB } = require('../../utils/dbConfig.js');
+const { connectDB, getDB, closeDB } = require('../../utils/dbConfig.js');
 const vinterIndexAssetUniverse = require('../fixtures/vinterIndexAssetUniverse.json');
+const mockVault = require('../fixtures/mockVaultObj.json'); // @dev The mockVault object `vaultAssetDepositAddress` should match `destinationAddress` property of fireblocks deposit object in fixtures
 const depositADAFireblocksObj = require('../fixtures/depositADAFireblocksObj.json');
 const depositBTCFireblocksObj = require('../fixtures/depositBTCFireblocksObj.json');
 const depositETHFireblocksObj = require('../fixtures/depositETHFireblocksObj.json');
@@ -10,13 +11,17 @@ const depositBNBFireblocksObj = require('../fixtures/depositBNBFireblocksObj.jso
 
 beforeAll(async () => {
     await connectDB();
+    const db = getDB();
+
+    await db.collection('vaults').insertOne(mockVault);
 }, 50000);
 
 afterAll(async () => {
+    await db.collection('vaults').deleteOne({ marketMaker: mockVault.marketMaker });
     await closeDB();
 });
 
-test('test transfer events webhook call for each asset', async () => {
+test('test deposit flow', async () => {
 
     // calling the /fireblocksWebhook/ api for each asset to mock asset deposits on fireblocks
     for (let a = 0; a < vinterIndexAssetUniverse.length; a++) {

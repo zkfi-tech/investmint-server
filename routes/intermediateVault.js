@@ -2,9 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
 const { getFireblocksInstance } = require('../utils/omnibusVault.js');
+const {withdrawAssetsForMarketMaker} = require('../utils/withdrawalVault.js');
 const { getVault } = require('../utils/custodian.js');
 const { inspect } = require('util');
 const debug = require('debug')('investmint-offchain-server:vault');
+const InvestMintDFTABI = require('../abi/InvestMintDFT.json'); // Import the InvestMintDFT contract
+const Web3 = require('web3'); // Import the Web3 library
 
 router.get('/isVaultCreated/:mmAddress', async (req, res) => {
     const vault = await getVault();
@@ -126,6 +129,30 @@ router.post('/create/:mmAddress', async (req, res) => {
     } catch (e) {
         console.error(`Failed: ${e}`);
         res.status(400).send(`Failed to create vault: ${e}`);
+    }
+});
+
+router.get('/redeem/:mmAddress/:quantity', async (req, res) => {
+    try{
+        const MMAddress = req.params.mmAddress;
+        const quantity = req.params.quantity;
+
+        // check if the MM has the required quantity of DFTs
+        const web3 = new Web3(process.env.ANVIL_RPC_URL);
+        const contract = new web3.eth.Contract(InvestMintDFTABI, process.env.DFT_CONTRACT_ADDRESS);
+
+        const balance = await contract.methods.balanceOf(MMAddress).call();
+        if (balance < quantity) {
+            throw (`Market maker ${MMAddress} does not have enough DFTs to redeem`);
+        }
+
+        // initiate withdrawal of underlying assets to MM's withdrawal addresses
+        withdrawAssetsForMarketMaker(MMAddress, quantity);
+
+        res.status(200).json({ balance }); // Send the balance as a response
+    } catch(e) {
+        console.error(`Failed: ${e}`);
+        res.status(400).send(`Failed to redeem: ${e}`);
     }
 });
 

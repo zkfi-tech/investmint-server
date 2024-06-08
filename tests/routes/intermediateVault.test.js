@@ -1,6 +1,7 @@
 const app = require('../../app');
 const request = require('supertest');
 const { connectDB, getDB, closeDB } = require('../../utils/dbConfig');
+let mmAddress = process.env.ANVIL_PUBLIC_KEY;
 
 describe("Testing vault routes", () => {
     var db;
@@ -12,7 +13,7 @@ describe("Testing vault routes", () => {
 
     afterAll(async () => {
         let deleteFilter = {
-            "marketMaker": "0x689EcF264657302052c3dfBD631e4c20d3ED0baC"
+            "marketMaker": mmAddress
         }
         await db.collection(`vaults`).deleteOne(deleteFilter);
         await closeDB();
@@ -43,10 +44,8 @@ describe("Testing vault routes", () => {
                 }
             ]
         }
-        const mmAddressParam = "0x689EcF264657302052c3dfBD631e4c20d3ED0baC";
-
         const vaultCreationRes = await request(app)
-            .post(`/intermediateVault/create/${mmAddressParam}`)
+            .post(`/intermediateVault/create/${mmAddress}`)
             .send(assetWithdrawAddressObj)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json');
@@ -58,7 +57,7 @@ describe("Testing vault routes", () => {
             expect(assetWallets[a].vaultAssetDepositAddress).not.toBe(0x0000000000000000000000000000000000000000);
         }
 
-        const vault = await request(app).get(`/intermediateVault/getVault/${mmAddressParam}`);
+        const vault = await request(app).get(`/intermediateVault/getVault/${mmAddress}`);
         expect(vault.statusCode).toBe(200);
     }, 50000);
 
