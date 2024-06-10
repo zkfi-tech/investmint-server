@@ -1,6 +1,6 @@
 {
     "marketMaker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "vaultId": "352",
+    "vaultId": "526",
     "vaultAssets": [
         {
             "asset": "ADA",
@@ -31,8 +31,8 @@
         },
         {
             "asset": "ETH",
-            "vaultAssetDepositAddress": "0x3CAE2bc199aB2C99e0aA593732e9Af498b170a8d",
-            "withdrawalAddress": "dummy-withdraw-address-4",
+            "vaultAssetDepositAddress": "0x3e495671988F6a5a2cD06C27d29de7B4C58321e4",
+            "withdrawalAddress": "0x689EcF264657302052c3dfBD631e4c20d3ED0baB",
             "vaultAssetTag": "",
             "assetIdOnFireblocks": "BASECHAIN_ETH_TEST5",
             "assetIdOnVinter": "eth-usd-p-h",

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../utils/dbConfig.js');
 const { getFireblocksInstance } = require('../utils/omnibusVault.js');
-const {withdrawAssetsForMarketMaker} = require('../utils/withdrawalVault.js');
+const {withdrawAssetsForMM} = require('../utils/withdrawalVault.js');
 const { getVault } = require('../utils/custodian.js');
 const { inspect } = require('util');
 const debug = require('debug')('investmint-offchain-server:vault');
@@ -147,7 +147,7 @@ router.get('/redeem/:mmAddress/:quantity', async (req, res) => {
         }
 
         // initiate withdrawal of underlying assets to MM's withdrawal addresses
-        withdrawAssetsForMarketMaker(MMAddress, quantity);
+        withdrawAssetsForMM(MMAddress, quantity);
 
         res.status(200).json({ balance }); // Send the balance as a response
     } catch(e) {

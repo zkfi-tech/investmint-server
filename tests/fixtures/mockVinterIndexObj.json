@@ -1,0 +1,30 @@
+{
+    "short_name": "VNEQ5",
+    "long_name": "Vinter Equal Weighted 5 Index",
+    "publisher": "Vinter",
+    "currentAssets": [
+        "ada-usd-p-h",
+        "bnb-usd-p-h",
+        "btc-usd-p-h",
+        "eth-usd-p-h",
+        "xrp-usd-p-h"
+    ],
+    "currentWeights": [
+        0.1887094862,
+        0.1980078237,
+        0.2302474888,
+        0.2058637818,
+        0.1771714194
+    ],
+    "currentPrices": [
+        0.3707,
+        312.88,
+        22843.11,
+        1569.9,
+        0.3907
+    ],
+    "rebalanceDate": "2024-07-31",
+    "rebalanceAssets": [],
+    "rebalanceWeights": [],
+    "symbol": "vntr-eq-5-h"
+}

@@ -18,9 +18,9 @@
             "name": "IMVault_0x734A75B8e9D002A27109247800F7afA4BeEC532",
             "subType": ""
         },
-        "amount": 0.0009,
+        "amount": 0.2058637818,
         "networkFee": 0.00003150000609,
-        "netAmount": 0.0009,
+        "netAmount": 0.2058637818,
         "sourceAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "destinationAddress": "0x3CAE2bc199aB2C99e0aA593732e9Af498b170a8d",
         "status": "COMPLETED",
@@ -30,9 +30,9 @@
         "operation": "TRANSFER",
         "numOfConfirmations": 1,
         "amountInfo": {
-            "amount": "0.0009",
-            "requestedAmount": "0.0009",
-            "netAmount": "0.0009",
+            "amount": "0.2058637818",
+            "requestedAmount": "0.2058637818",
+            "netAmount": "0.2058637818",
             "amountUSD": null
         },
         "feeInfo": {
